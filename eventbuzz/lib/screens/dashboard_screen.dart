@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
+import 'login_screen.dart';
 import 'my_events_screen.dart';
 import 'profile_screen.dart';
 import 'add_event_screen.dart';
@@ -40,6 +42,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Cancelled ${event.title}")));
   }
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_logged_in', false);
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LoginScreen(onThemeToggle: widget.onThemeToggle),
+      ),
+          (route) => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +63,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text("EventBuzz")),
+      appBar: AppBar(
+        title: Text("EventBuzz"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            tooltip: "Logout",
+            onPressed: _logout,
+          ),
+        ],
+      ),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
